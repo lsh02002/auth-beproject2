@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @RequiredArgsConstructor
 @AllArgsConstructor
-public class ResponseDto {
+public class AuthResponseDto {
     private int code;
     private String message;
     @JsonInclude(JsonInclude.Include.NON_NULL)
