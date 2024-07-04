@@ -9,7 +9,7 @@ import me.seho.authbeproject2.repository.userRoles.UserRolesRepository;
 import me.seho.authbeproject2.repository.users.User;
 import me.seho.authbeproject2.repository.users.UserRepository;
 import me.seho.authbeproject2.web.dto.auth.LoginRequest;
-import me.seho.authbeproject2.web.dto.auth.ResponseDto;
+import me.seho.authbeproject2.web.dto.auth.AuthResponseDto;
 import me.seho.authbeproject2.web.dto.auth.SignupRequest;
 import me.seho.authbeproject2.web.dto.auth.SignupResponse;
 import org.springframework.http.HttpStatus;
@@ -36,7 +36,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     @Transactional
-    public ResponseDto signUp(SignupRequest signupRequest){
+    public AuthResponseDto signUp(SignupRequest signupRequest){
         String email = signupRequest.getEmail();
         String password = signupRequest.getPassword();
 
@@ -62,7 +62,7 @@ public class AuthService {
                 .nickname(user.getNickName())
                 .build();
 
-        return new ResponseDto(HttpStatus.OK.value(), user.getNickName() + "님 회원 가입 완료 되었습니다.", signupResponse);
+        return new AuthResponseDto(HttpStatus.OK.value(), user.getNickName() + "님 회원 가입 완료 되었습니다.", signupResponse);
     }
 
     public List<Object> login(LoginRequest request) throws Exception {
@@ -84,8 +84,8 @@ public class AuthService {
                 .nickname(user.getNickName())
                 .build();
 
-        ResponseDto responseDto = new ResponseDto(HttpStatus.OK.value(), "로그인에 성공 하였습니다.", signupResponse);
+        AuthResponseDto authResponseDto = new AuthResponseDto(HttpStatus.OK.value(), "로그인에 성공 하였습니다.", signupResponse);
 
-        return Arrays.asList(jwtTokenProvider.createToken(user.getEmail()), responseDto);
+        return Arrays.asList(jwtTokenProvider.createToken(user.getEmail()), authResponseDto);
     }
 }
