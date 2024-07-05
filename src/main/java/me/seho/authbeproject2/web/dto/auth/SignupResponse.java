@@ -9,5 +9,5 @@ import lombok.*;
 @Builder
 public class SignupResponse {
     private Integer userId;
-    private String nickname;
+    private String name;
 }

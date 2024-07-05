@@ -19,7 +19,7 @@ public class CustomUserDetails implements UserDetails {
     @Getter
     private String phoneNumber;
     @Getter
-    private String nickName;
+    private String name;
 
     private String email;
     private String password;

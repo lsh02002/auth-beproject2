@@ -38,7 +38,6 @@ public class ExceptionControllerAdvice {
         return new ResponseEntity<>(errorRequestResponse, HttpStatus.NOT_ACCEPTABLE);
     }
 
-
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND) //찾을 수 없을때
     public ResponseEntity<ErrorResponse> handleNotFoundException(NotFoundException ex) {

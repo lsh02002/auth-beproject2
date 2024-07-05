@@ -21,8 +21,8 @@ public class User {
     @Column(name = "user_id")
     private Integer userId;
 
-    @Column(name = "nick_name", unique = true, nullable = false)
-    private String nickName;
+    @Column(name = "name", unique = true, nullable = false)
+    private String name;
 
     @Column(name = "phone_number", unique = true)
     private String phoneNumber;
