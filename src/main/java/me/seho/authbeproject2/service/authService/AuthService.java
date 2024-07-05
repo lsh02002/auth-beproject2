@@ -47,15 +47,13 @@ public class AuthService {
         if(!email.matches(".+@.+\\..+")){
             throw new BadRequestException("이메일을 정확히 입력해주세요.", email);
         } else if (signupRequest.getName().matches("01\\d{9}")){
-            throw new BadRequestException("핸드폰 번호를 닉네임으로 사용할수 없습니다.",signupRequest.getName());
+            throw new BadRequestException("전화번호를 이름으로 사용할수 없습니다.",signupRequest.getName());
         }
 
         if(userRepository.existsByEmail(email)){
             throw new ConflictException("이미 입력하신 " + email + " 이메일로 가입된 계정이 있습니다.", email);
         } else if(signupRequest.getName().length()>30){
-            throw new BadRequestException("닉네임은 30자리 이하여야 합니다.", signupRequest.getName());
-        } else if(userRepository.existsByName(signupRequest.getName())){
-            throw new ConflictException("이미 입력하신 "+signupRequest.getName()+" 닉네임으로 가입된 계정이 있습니다.",signupRequest.getName());
+            throw new BadRequestException("이름은 30자리 이하여야 합니다.", signupRequest.getName());
         } else if(userRepository.existsByPhoneNumber(signupRequest.getPhoneNumber())){
             throw new ConflictException("이미 입력하신 "+signupRequest.getPhoneNumber()+" 전화번호로 가입된 계정이 있습니다.",signupRequest.getPhoneNumber());
         }else if(!password.matches("^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d]+$")
