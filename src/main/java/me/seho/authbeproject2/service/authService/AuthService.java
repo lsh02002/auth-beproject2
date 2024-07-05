@@ -2,10 +2,10 @@ package me.seho.authbeproject2.service.authService;
 
 import lombok.RequiredArgsConstructor;
 import me.seho.authbeproject2.config.security.JwtTokenProvider;
-import me.seho.authbeproject2.repository.userRoles.Roles;
-import me.seho.authbeproject2.repository.userRoles.RolesRepository;
-import me.seho.authbeproject2.repository.userRoles.UserRoles;
-import me.seho.authbeproject2.repository.userRoles.UserRolesRepository;
+import me.seho.authbeproject2.repository.users.userRoles.Roles;
+import me.seho.authbeproject2.repository.users.userRoles.RolesRepository;
+import me.seho.authbeproject2.repository.users.userRoles.UserRoles;
+import me.seho.authbeproject2.repository.users.userRoles.UserRolesRepository;
 import me.seho.authbeproject2.repository.users.User;
 import me.seho.authbeproject2.repository.users.UserRepository;
 import me.seho.authbeproject2.service.exceptions.BadRequestException;
@@ -25,6 +25,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
@@ -67,11 +69,16 @@ public class AuthService {
 
         Roles roles = rolesRepository.findByName("ROLE_USER");
 
+        LocalDate birthDate = LocalDate.parse(signupRequest.getBirthDate(), DateTimeFormatter.ISO_DATE);
+
         User user = User.builder()
                 .email(signupRequest.getEmail())
                 .password(signupRequest.getPassword())
                 .name(signupRequest.getName())
                 .phoneNumber(signupRequest.getPhoneNumber())
+                .address(signupRequest.getAddress())
+                .gender(signupRequest.getGender())
+                .birthDate(birthDate)
                 .build();
 
         userRepository.save(user);
@@ -82,7 +89,7 @@ public class AuthService {
                 .build());
 
         SignupResponse signupResponse = SignupResponse.builder()
-                .userId(user.getUserId())
+                .userId(user.getId())
                 .name(user.getName())
                 .build();
 
@@ -113,7 +120,7 @@ public class AuthService {
                 .map(u->u.getRoles()).map(r->r.getName()).toList();
 
         SignupResponse signupResponse = SignupResponse.builder()
-                .userId(user.getUserId())
+                .userId(user.getId())
                 .name(user.getName())
                 .build();
 

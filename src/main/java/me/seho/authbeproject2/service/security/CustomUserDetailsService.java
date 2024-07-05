@@ -2,7 +2,7 @@ package me.seho.authbeproject2.service.security;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.seho.authbeproject2.repository.userDetails.CustomUserDetails;
+import me.seho.authbeproject2.repository.users.userDetails.CustomUserDetails;
 import me.seho.authbeproject2.repository.users.User;
 import me.seho.authbeproject2.repository.users.UserRepository;
 import org.springframework.context.annotation.Primary;
@@ -28,12 +28,15 @@ public class CustomUserDetailsService implements UserDetailsService {
                  new UsernameNotFoundException("(토큰에러) 해당 이메일을 찾을 수 없습니다."));
 
          return CustomUserDetails.builder()
-                 .userId(user.getUserId())
+                 .id(user.getId())
                  .email(user.getEmail())
                  .password(user.getPassword())
                  .phoneNumber(user.getPhoneNumber())
                  .name(user.getName())
                  .phoneNumber(user.getPhoneNumber())
+                 .address(user.getAddress())
+                 .gender(user.getGender())
+                 .birthDate(user.getBirthDate())
                  .authorities(user.getUserRoles()
                          .stream().map(u->u.getRoles())
                          .map(r->r.getName())

@@ -8,6 +8,6 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class SignupResponse {
-    private Integer userId;
+    private Long userId;
     private String name;
 }

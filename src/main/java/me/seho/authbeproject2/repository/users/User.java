@@ -2,10 +2,16 @@ package me.seho.authbeproject2.repository.users;
 
 import jakarta.persistence.*;
 import lombok.*;
-import me.seho.authbeproject2.repository.userRoles.UserRoles;
+import me.seho.authbeproject2.repository.entity.Cart;
+import me.seho.authbeproject2.repository.entity.Payment;
+import me.seho.authbeproject2.repository.entity.Sale;
+import me.seho.authbeproject2.repository.users.userRoles.UserRoles;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -18,8 +24,7 @@ import java.util.Collection;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
-    private Integer userId;
+    private Long id;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -33,15 +38,24 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
 
-//    @Column(name = "join_date", nullable = false)
-//    private LocalDateTime joinDate;
+    @Column(nullable = false)
+    private String address;
 
-    @Column(name = "deletion_date")
-    private LocalDateTime deletionDate;
+    @Column(nullable = false)
+    private String gender;
 
-    @Column(name = "lock_date")
-    private LocalDateTime lockDate;
+    @Column(name = "birth_date", nullable = false)
+    private LocalDate birthDate;
 
     @OneToMany(mappedBy = "user")
     private Collection<UserRoles> userRoles;
+
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    private List<Sale> sales = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    private List<Payment> payments = new ArrayList<>();
+
+    @OneToOne(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    private Cart cart;
 }

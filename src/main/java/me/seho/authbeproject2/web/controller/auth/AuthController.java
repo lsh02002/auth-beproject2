@@ -2,7 +2,7 @@ package me.seho.authbeproject2.web.controller.auth;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import me.seho.authbeproject2.repository.userDetails.CustomUserDetails;
+import me.seho.authbeproject2.repository.users.userDetails.CustomUserDetails;
 import me.seho.authbeproject2.service.authService.AuthService;
 import me.seho.authbeproject2.web.dto.auth.LoginRequest;
 import me.seho.authbeproject2.web.dto.auth.AuthResponseDto;

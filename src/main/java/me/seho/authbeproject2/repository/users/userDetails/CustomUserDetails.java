@@ -1,10 +1,11 @@
-package me.seho.authbeproject2.repository.userDetails;
+package me.seho.authbeproject2.repository.users.userDetails;
 
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,7 +16,7 @@ import java.util.stream.Collectors;
 @ToString
 public class CustomUserDetails implements UserDetails {
     @Getter
-    private Integer userId;
+    private Long id;
     @Getter
     private String phoneNumber;
     @Getter
@@ -23,6 +24,14 @@ public class CustomUserDetails implements UserDetails {
 
     private String email;
     private String password;
+
+    @Getter
+    private String address;
+    @Getter
+    private String gender;
+    @Getter
+    private LocalDate birthDate;
+
     private List<String> authorities;
 
     @Override

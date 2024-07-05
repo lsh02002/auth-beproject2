@@ -1,4 +1,4 @@
-package me.seho.authbeproject2.repository.userRoles;
+package me.seho.authbeproject2.repository.users.userRoles;
 
 import jakarta.persistence.*;
 import lombok.Getter;
