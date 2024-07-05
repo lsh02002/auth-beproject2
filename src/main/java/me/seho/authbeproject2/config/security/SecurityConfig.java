@@ -1,7 +1,7 @@
 package me.seho.authbeproject2.config.security;
 
 import lombok.RequiredArgsConstructor;
-import me.seho.authbeproject2.filters.JwtFilter;
+import me.seho.authbeproject2.web.filters.JwtFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

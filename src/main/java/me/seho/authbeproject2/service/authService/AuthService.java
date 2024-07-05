@@ -8,6 +8,7 @@ import me.seho.authbeproject2.repository.userRoles.UserRoles;
 import me.seho.authbeproject2.repository.userRoles.UserRolesRepository;
 import me.seho.authbeproject2.repository.users.User;
 import me.seho.authbeproject2.repository.users.UserRepository;
+import me.seho.authbeproject2.service.exceptions.NotFoundException;
 import me.seho.authbeproject2.web.dto.auth.LoginRequest;
 import me.seho.authbeproject2.web.dto.auth.AuthResponseDto;
 import me.seho.authbeproject2.web.dto.auth.SignupRequest;
@@ -65,12 +66,12 @@ public class AuthService {
         return new AuthResponseDto(HttpStatus.OK.value(), user.getNickName() + "님 회원 가입 완료 되었습니다.", signupResponse);
     }
 
-    public List<Object> login(LoginRequest request) throws Exception {
-        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(()->new Exception("계정을 찾을 수 없습니다."));
+    public List<Object> login(LoginRequest request) {
+        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(()->new NotFoundException("입력하신 이메일의 계정을 찾을 수 없습니다.", request.getEmail()));
         String p1 = user.getPassword();
 
         if(!passwordEncoder.matches(request.getPassword(), p1)){
-            throw new Exception("계정을 찾을 수 없습니다");
+            throw new NotFoundException("비밀번호가 일치하지 않습니다.", null);
         }
 
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));

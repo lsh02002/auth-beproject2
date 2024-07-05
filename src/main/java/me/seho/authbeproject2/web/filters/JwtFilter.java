@@ -1,4 +1,4 @@
-package me.seho.authbeproject2.filters;
+package me.seho.authbeproject2.web.filters;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

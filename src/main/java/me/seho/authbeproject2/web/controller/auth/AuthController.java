@@ -24,7 +24,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public AuthResponseDto login(@RequestBody LoginRequest loginRequest, HttpServletResponse httpServletResponse) throws Exception{
+    public AuthResponseDto login(@RequestBody LoginRequest loginRequest, HttpServletResponse httpServletResponse){
         List<Object> tokenAndResponse = authService.login(loginRequest);
         httpServletResponse.setHeader("Token", (String) tokenAndResponse.get(0));
         return (AuthResponseDto) tokenAndResponse.get(1);
