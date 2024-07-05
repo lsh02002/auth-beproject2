@@ -19,7 +19,7 @@ public class ExceptionControllerAdvice {
 
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN) //권한이 없을때
-    public ResponseEntity<ErrorResponse> handleNotAccessDenied(AccessDeniedException ex) {
+    public ResponseEntity<ErrorResponse> handleNotAccessDeniedException(AccessDeniedException ex) {
         ErrorResponse errorRequestResponse = new ErrorResponse(403, "FORBIDDEN" ,  ex.getDetailMessage(), ex.getRequest());
         return new ResponseEntity<>(errorRequestResponse, HttpStatus.FORBIDDEN);
     }
