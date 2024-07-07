@@ -2,18 +2,18 @@ package me.seho.authbeproject2.service.authService;
 
 import lombok.RequiredArgsConstructor;
 import me.seho.authbeproject2.config.security.JwtTokenProvider;
+import me.seho.authbeproject2.repository.users.User;
+import me.seho.authbeproject2.repository.users.UserRepository;
 import me.seho.authbeproject2.repository.users.userRoles.Roles;
 import me.seho.authbeproject2.repository.users.userRoles.RolesRepository;
 import me.seho.authbeproject2.repository.users.userRoles.UserRoles;
 import me.seho.authbeproject2.repository.users.userRoles.UserRolesRepository;
-import me.seho.authbeproject2.repository.users.User;
-import me.seho.authbeproject2.repository.users.UserRepository;
 import me.seho.authbeproject2.service.exceptions.BadRequestException;
 import me.seho.authbeproject2.service.exceptions.ConflictException;
 import me.seho.authbeproject2.service.exceptions.CustomBadCredentialsException;
 import me.seho.authbeproject2.service.exceptions.NotFoundException;
-import me.seho.authbeproject2.web.dto.auth.LoginRequest;
 import me.seho.authbeproject2.web.dto.auth.AuthResponseDto;
+import me.seho.authbeproject2.web.dto.auth.LoginRequest;
 import me.seho.authbeproject2.web.dto.auth.SignupRequest;
 import me.seho.authbeproject2.web.dto.auth.SignupResponse;
 import org.springframework.http.HttpStatus;
@@ -56,6 +56,8 @@ public class AuthService {
             throw new ConflictException("이미 입력하신 " + email + " 이메일로 가입된 계정이 있습니다.", email);
         } else if(signupRequest.getName().length()>30){
             throw new BadRequestException("이름은 30자리 이하여야 합니다.", signupRequest.getName());
+        }else if(!signupRequest.getPhoneNumber().matches("01\\d{9}")){
+            throw new BadRequestException("전화번호 형식이 올바르지 않습니다.", signupRequest.getPhoneNumber());
         } else if(userRepository.existsByPhoneNumber(signupRequest.getPhoneNumber())){
             throw new ConflictException("이미 입력하신 "+signupRequest.getPhoneNumber()+" 전화번호로 가입된 계정이 있습니다.",signupRequest.getPhoneNumber());
         }else if(!password.matches("^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d]+$")
@@ -63,6 +65,8 @@ public class AuthService {
             throw new BadRequestException("비밀번호는 8자 이상 20자 이하 숫자와 영문소문자 조합 이어야 합니다.",password);
         } else if(!signupRequest.getPasswordConfirm().equals(password)) {
             throw new BadRequestException("비밀번호와 비밀번호 확인이 같지 않습니다.","password : "+password+", password_confirm : "+signupRequest.getPasswordConfirm());
+        } else if(!(signupRequest.getGender().equals("남성") || signupRequest.getGender().equals("여성"))){
+            throw new BadRequestException("성별 형식이 올바르지 않습니다.", signupRequest.getGender());
         }
 
         signupRequest.setPassword(passwordEncoder.encode(signupRequest.getPassword()));

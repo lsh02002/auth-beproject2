@@ -6,6 +6,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,6 +32,9 @@ public class CustomUserDetails implements UserDetails {
     private String gender;
     @Getter
     private LocalDate birthDate;
+
+    @Getter
+    private LocalDateTime createAt;
 
     private List<String> authorities;
 

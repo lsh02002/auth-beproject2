@@ -37,6 +37,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                  .address(user.getAddress())
                  .gender(user.getGender())
                  .birthDate(user.getBirthDate())
+                 .createAt(user.getCreateAt())
                  .authorities(user.getUserRoles()
                          .stream().map(u->u.getRoles())
                          .map(r->r.getName())
