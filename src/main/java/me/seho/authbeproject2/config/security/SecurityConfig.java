@@ -35,10 +35,16 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .cors(c->{c.configurationSource(corsConfigurationSource());})
                 .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(e->{
+                    e.authenticationEntryPoint(new AuthenticationEntryPointImpl());
+                    e.accessDeniedHandler(new AccessDeniedHandlerImpl());
+                })
                 .authorizeHttpRequests(a->
                         a
-                                .requestMatchers("/auth/sign-up/**", "/auth/login/**").permitAll()
-                                .requestMatchers("/auth/test/**").hasAnyRole("USER"))
+                                // Jwt 토큰이 필요한 엔트리포인트를 기입해 주세요.
+                                .requestMatchers("/auth/test1/**").hasAnyRole("USER")
+                                // 지정하지 않은 나머지는 Jwt 토큰이 상관없는 엔트리포인트입니다.
+                                .requestMatchers("/**").permitAll())
                 .addFilterBefore(new JwtFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

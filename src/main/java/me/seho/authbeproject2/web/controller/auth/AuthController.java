@@ -4,6 +4,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import me.seho.authbeproject2.repository.users.userDetails.CustomUserDetails;
 import me.seho.authbeproject2.service.authService.AuthService;
+import me.seho.authbeproject2.service.exceptions.AccessDeniedException;
+import me.seho.authbeproject2.service.exceptions.NotAcceptableException;
 import me.seho.authbeproject2.web.dto.auth.LoginRequest;
 import me.seho.authbeproject2.web.dto.auth.AuthResponseDto;
 import me.seho.authbeproject2.web.dto.auth.SignupRequest;
@@ -30,8 +32,25 @@ public class AuthController {
         return (AuthResponseDto) tokenAndResponse.get(1);
     }
 
-    @GetMapping("/test")
-    public Object test(@AuthenticationPrincipal CustomUserDetails customUserDetails){
+    @GetMapping(value = "/entrypoint")
+    public void entrypointException(@RequestParam(name = "token", required = false) String token) {
+        if (token==null) throw new NotAcceptableException("로그인(Jwt 토큰)이 필요합니다.", null);
+        else throw new NotAcceptableException("로그인이 만료 되었습니다.","유효하지 않은 토큰 : "+ token);
+    }
+
+    @GetMapping(value = "/access-denied")
+    public void accessDeniedException(@RequestParam(name = "roles", required = false) String roles) {
+        if(roles==null) throw new AccessDeniedException("권한이 설정되지 않았습니다.",null);
+        else throw new AccessDeniedException("권한이 없습니다.", "시도한 유저의 권한 : "+roles);
+    }
+
+    @GetMapping("/test1")
+    public Object test1(@AuthenticationPrincipal CustomUserDetails customUserDetails){
         return customUserDetails.toString();
+    }
+
+    @GetMapping("/test2")
+    public String test2(){
+        return "Jwt 토큰이 상관없는 EndPoint 테스트입니다.";
     }
 }
