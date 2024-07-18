@@ -12,13 +12,11 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Component
-@RequiredArgsConstructor
 public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {
-    private final JwtTokenProvider jwtTokenProvider;
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        String accessToken = jwtTokenProvider.getAccessAndRefreshTokenCookies(request).get(0);
+        String accessToken = request.getHeader("accessToken");
         if(accessToken != null){
             response.sendRedirect("/auth/entrypoint?token=" + accessToken);
         }else{

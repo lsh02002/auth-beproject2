@@ -36,7 +36,7 @@ public class SecurityConfig {
                 .cors(c->{c.configurationSource(corsConfigurationSource());})
                 .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(e->{
-                    e.authenticationEntryPoint(new AuthenticationEntryPointImpl(jwtTokenProvider));
+                    e.authenticationEntryPoint(new AuthenticationEntryPointImpl());
                     e.accessDeniedHandler(new AccessDeniedHandlerImpl());
                 })
                 .authorizeHttpRequests(a->

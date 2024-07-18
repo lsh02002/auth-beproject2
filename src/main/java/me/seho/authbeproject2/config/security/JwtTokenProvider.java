@@ -108,24 +108,4 @@ public class JwtTokenProvider {
         cookieGenerator.addCookie(response, refreshToken);
         cookieGenerator.setCookieMaxAge(60 * 60 * 24 * 14);
     }
-
-    public List<String> getAccessAndRefreshTokenCookies(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-
-        if(cookies == null){
-            return Arrays.asList(null, null);
-        }
-
-        String accessToken = null;
-        String refreshToken = null;
-
-        for(Cookie cookie : cookies) {                // 찾는 쿠키 발견시 수정
-            if (cookie.getName().equals("accessToken")) {
-                accessToken = cookie.getValue();
-            } else if(cookie.getName().equals("refreshToken")){
-                refreshToken = cookie.getValue();
-            }
-        }
-        return Arrays.asList(accessToken, refreshToken);
-    }
 }
