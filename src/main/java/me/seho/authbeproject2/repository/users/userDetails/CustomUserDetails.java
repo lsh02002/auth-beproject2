@@ -22,7 +22,7 @@ public class CustomUserDetails implements UserDetails {
     private String phoneNumber;
     @Getter
     private String name;
-
+    @Getter
     private String email;
     private String password;
 

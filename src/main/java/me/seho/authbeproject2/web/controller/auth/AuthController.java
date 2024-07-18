@@ -2,6 +2,7 @@ package me.seho.authbeproject2.web.controller.auth;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import me.seho.authbeproject2.config.security.JwtTokenProvider;
 import me.seho.authbeproject2.repository.users.userDetails.CustomUserDetails;
 import me.seho.authbeproject2.service.authService.AuthService;
 import me.seho.authbeproject2.service.exceptions.AccessDeniedException;
@@ -18,6 +19,7 @@ import java.util.List;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
+    private final JwtTokenProvider jwtTokenProvider;
     private final AuthService authService;
 
     @PostMapping("/sign-up")
@@ -27,13 +29,14 @@ public class AuthController {
 
     @PostMapping("/login")
     public AuthResponseDto login(@RequestBody LoginRequest loginRequest, HttpServletResponse httpServletResponse){
-        List<Object> tokenAndResponse = authService.login(loginRequest);
-        httpServletResponse.setHeader("Token", (String) tokenAndResponse.get(0));
-        return (AuthResponseDto) tokenAndResponse.get(1);
+        List<Object> accessTokenAndRefreshTokenAndResponse = authService.login(loginRequest);
+        jwtTokenProvider.setAccessTokenCookies(httpServletResponse, (String) accessTokenAndRefreshTokenAndResponse.get(0));
+        jwtTokenProvider.setRefreshTokenCookies(httpServletResponse, (String) accessTokenAndRefreshTokenAndResponse.get(1));
+        return (AuthResponseDto) accessTokenAndRefreshTokenAndResponse.get(2);
     }
 
     @GetMapping(value = "/entrypoint")
-    public void entrypointException(@RequestParam(name = "token", required = false) String token) {
+    public void entrypointException(@RequestParam(name = "accessToken", required = false) String token) {
         if (token==null) throw new NotAcceptableException("로그인(Jwt 토큰)이 필요합니다.", null);
         else throw new NotAcceptableException("로그인이 만료 되었습니다.","유효하지 않은 토큰 : "+ token);
     }

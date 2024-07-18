@@ -36,7 +36,7 @@ public class SecurityConfig {
                 .cors(c->{c.configurationSource(corsConfigurationSource());})
                 .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(e->{
-                    e.authenticationEntryPoint(new AuthenticationEntryPointImpl());
+                    e.authenticationEntryPoint(new AuthenticationEntryPointImpl(jwtTokenProvider));
                     e.accessDeniedHandler(new AccessDeniedHandlerImpl());
                 })
                 .authorizeHttpRequests(a->
@@ -59,7 +59,8 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource(){
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowedOrigins(List.of("*"));
-        corsConfiguration.addExposedHeader("Token");
+        corsConfiguration.addExposedHeader("accessToken");
+        corsConfiguration.addExposedHeader("refreshToken");
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.setAllowedMethods(Arrays.asList("GET", "PUT", "POST","PATCH","DELETE","OPTIONS"));
         corsConfiguration.setMaxAge(1000L*60*60);

@@ -1,9 +1,12 @@
 package me.seho.authbeproject2.service.authService;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import me.seho.authbeproject2.config.security.JwtTokenProvider;
 import me.seho.authbeproject2.repository.users.User;
 import me.seho.authbeproject2.repository.users.UserRepository;
+import me.seho.authbeproject2.repository.users.refreshToken.RefreshToken;
+import me.seho.authbeproject2.repository.users.refreshToken.RefreshTokenRepository;
 import me.seho.authbeproject2.repository.users.userRoles.Roles;
 import me.seho.authbeproject2.repository.users.userRoles.RolesRepository;
 import me.seho.authbeproject2.repository.users.userRoles.UserRoles;
@@ -36,10 +39,32 @@ public class AuthService {
     private final UserRepository userRepository;
     private final RolesRepository rolesRepository;
     private final UserRolesRepository userRolesRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final JwtTokenProvider jwtTokenProvider;
 
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+
+    @PostConstruct
+    private void insertRoleUserAndRoleAdminToNewDb(){
+        //db를 새로 생성할 때 roles(ROLE_USER)초기값 생성
+        Roles roleUser = rolesRepository.findByName("ROLE_USER");
+
+        if(roleUser == null){
+            rolesRepository.save(Roles.builder()
+                    .name("ROLE_USER")
+                    .build());
+        }
+
+        //db를 새로 생성할 때 roles(ROLE_ADMIN)초기값 생성
+        Roles roleAdmin = rolesRepository.findByName("ROLE_ADMIN");
+
+        if(roleAdmin == null){
+            rolesRepository.save(Roles.builder()
+                    .name("ROLE_ADMIN")
+                    .build());
+        }
+    }
 
     @Transactional
     public AuthResponseDto signUp(SignupRequest signupRequest){
@@ -128,8 +153,18 @@ public class AuthService {
                 .name(user.getName())
                 .build();
 
+        String newRefreshToken = jwtTokenProvider.createRefreshToken(user.getEmail());
+
+        RefreshToken newToken = RefreshToken.builder()
+                .authId(user.getId().toString())
+                .refreshToken(newRefreshToken)
+                .email(user.getEmail())
+                .build();
+
+        refreshTokenRepository.save(newToken);
+
         AuthResponseDto authResponseDto = new AuthResponseDto(HttpStatus.OK.value(), "로그인에 성공 하였습니다.", signupResponse);
 
-        return Arrays.asList(jwtTokenProvider.createToken(user.getEmail()), authResponseDto);
+        return Arrays.asList(jwtTokenProvider.createAccessToken(user.getEmail()), newRefreshToken, authResponseDto);
     }
 }

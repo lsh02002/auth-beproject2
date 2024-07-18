@@ -1,11 +1,17 @@
 package me.seho.authbeproject2.repository.users.userRoles;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Entity
 @Getter
 @Table(name = "roles")
+@AllArgsConstructor
+@RequiredArgsConstructor
+@Builder
 public class Roles {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
