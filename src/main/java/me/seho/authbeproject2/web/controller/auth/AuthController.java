@@ -4,11 +4,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import me.seho.authbeproject2.config.security.JwtTokenProvider;
 import me.seho.authbeproject2.repository.users.userDetails.CustomUserDetails;
-import me.seho.authbeproject2.service.authService.AuthService;
+import me.seho.authbeproject2.service.auth.AuthService;
 import me.seho.authbeproject2.service.exceptions.AccessDeniedException;
 import me.seho.authbeproject2.service.exceptions.NotAcceptableException;
 import me.seho.authbeproject2.web.dto.auth.LoginRequest;
-import me.seho.authbeproject2.web.dto.auth.AuthResponseDto;
+import me.seho.authbeproject2.web.dto.auth.AuthResponse;
 import me.seho.authbeproject2.web.dto.auth.SignupRequest;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -23,16 +23,16 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/sign-up")
-    public AuthResponseDto signUp(@RequestBody SignupRequest signupRequest){
+    public AuthResponse signUp(@RequestBody SignupRequest signupRequest){
         return authService.signUp(signupRequest);
     }
 
     @PostMapping("/login")
-    public AuthResponseDto login(@RequestBody LoginRequest loginRequest, HttpServletResponse httpServletResponse){
+    public AuthResponse login(@RequestBody LoginRequest loginRequest, HttpServletResponse httpServletResponse){
         List<Object> accessTokenAndRefreshTokenAndResponse = authService.login(loginRequest);
         jwtTokenProvider.setAccessTokenCookies(httpServletResponse, (String) accessTokenAndRefreshTokenAndResponse.get(0));
         jwtTokenProvider.setRefreshTokenCookies(httpServletResponse, (String) accessTokenAndRefreshTokenAndResponse.get(1));
-        return (AuthResponseDto) accessTokenAndRefreshTokenAndResponse.get(2);
+        return (AuthResponse) accessTokenAndRefreshTokenAndResponse.get(2);
     }
 
     @GetMapping(value = "/entrypoint")

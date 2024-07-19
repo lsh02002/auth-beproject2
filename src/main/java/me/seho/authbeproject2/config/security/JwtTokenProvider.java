@@ -5,7 +5,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import me.seho.authbeproject2.repository.users.refreshToken.RefreshToken;
@@ -17,9 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.CookieGenerator;
 
-import java.time.Instant;
 import java.util.*;
 
 @Component
@@ -54,10 +51,9 @@ public class JwtTokenProvider {
 
     public boolean validateRefreshToken(String token){
         if(!validateToken(token)) return false;
-
         // DB에 저장한 토큰 비교
-        Optional<RefreshToken> refreshToken = refreshTokenRepository.findByRefreshToken(token);
-        return refreshToken.isPresent() && token.equals(refreshToken.get().getRefreshToken());
+        RefreshToken refreshToken = refreshTokenRepository.findByRefreshToken(token).orElseThrow(()->new RuntimeException("토큰을 찾을 수 없습니다."));
+        return refreshToken != null && token.equals(refreshToken.getRefreshToken());
     }
 
     public Authentication getAuthentication(String token){
@@ -94,18 +90,18 @@ public class JwtTokenProvider {
     }
 
     public void setAccessTokenCookies(HttpServletResponse response, String accessToken){
-        CookieGenerator cookieGenerator = new CookieGenerator();
-        cookieGenerator.setCookieName("accessToken");
-        cookieGenerator.setCookieHttpOnly(true);
-        cookieGenerator.addCookie(response, accessToken);
-        cookieGenerator.setCookieMaxAge(60 * 60 * 24 * 14);
+        Cookie myCookie = new Cookie("accessToken", accessToken);
+        myCookie.setMaxAge(60 * 60 * 24 * 14);
+        myCookie.setPath("/");
+        myCookie.setHttpOnly(true);
+        response.addCookie(myCookie);
     }
 
     public void setRefreshTokenCookies(HttpServletResponse response, String refreshToken){
-        CookieGenerator cookieGenerator = new CookieGenerator();
-        cookieGenerator.setCookieName("refreshToken");
-        cookieGenerator.setCookieHttpOnly(true);
-        cookieGenerator.addCookie(response, refreshToken);
-        cookieGenerator.setCookieMaxAge(60 * 60 * 24 * 14);
+        Cookie myCookie = new Cookie("refreshToken", refreshToken);
+        myCookie.setMaxAge(60 * 60 * 24 * 14);
+        myCookie.setPath("/");
+        myCookie.setHttpOnly(true);
+        response.addCookie(myCookie);
     }
 }

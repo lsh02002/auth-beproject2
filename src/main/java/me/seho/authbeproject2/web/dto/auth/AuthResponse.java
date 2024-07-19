@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class AuthResponseDto {
+public class AuthResponse {
     private int code;
     private String message;
     @JsonInclude(JsonInclude.Include.NON_NULL)

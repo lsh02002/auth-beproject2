@@ -13,8 +13,8 @@ import org.springframework.data.redis.core.index.Indexed;
 public class RefreshToken {
     @Id
     private String authId;
-    private String refreshToken;
     @Indexed
+    private String refreshToken;
     private String email;
 
     public RefreshToken update(String refreshToken){

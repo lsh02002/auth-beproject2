@@ -1,4 +1,4 @@
-package me.seho.authbeproject2.service.authService;
+package me.seho.authbeproject2.service.auth;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ import me.seho.authbeproject2.service.exceptions.BadRequestException;
 import me.seho.authbeproject2.service.exceptions.ConflictException;
 import me.seho.authbeproject2.service.exceptions.CustomBadCredentialsException;
 import me.seho.authbeproject2.service.exceptions.NotFoundException;
-import me.seho.authbeproject2.web.dto.auth.AuthResponseDto;
+import me.seho.authbeproject2.web.dto.auth.AuthResponse;
 import me.seho.authbeproject2.web.dto.auth.LoginRequest;
 import me.seho.authbeproject2.web.dto.auth.SignupRequest;
 import me.seho.authbeproject2.web.dto.auth.SignupResponse;
@@ -67,7 +67,7 @@ public class AuthService {
     }
 
     @Transactional
-    public AuthResponseDto signUp(SignupRequest signupRequest){
+    public AuthResponse signUp(SignupRequest signupRequest){
         String email = signupRequest.getEmail();
         String password = signupRequest.getPassword();
 
@@ -122,7 +122,7 @@ public class AuthService {
                 .name(user.getName())
                 .build();
 
-        return new AuthResponseDto(HttpStatus.OK.value(), user.getName() + "님 회원 가입 완료 되었습니다.", signupResponse);
+        return new AuthResponse(HttpStatus.OK.value(), user.getName() + "님 회원 가입 완료 되었습니다.", signupResponse);
     }
 
     public List<Object> login(LoginRequest request) {
@@ -163,7 +163,7 @@ public class AuthService {
 
         refreshTokenRepository.save(newToken);
 
-        AuthResponseDto authResponseDto = new AuthResponseDto(HttpStatus.OK.value(), "로그인에 성공 하였습니다.", signupResponse);
+        AuthResponse authResponseDto = new AuthResponse(HttpStatus.OK.value(), "로그인에 성공 하였습니다.", signupResponse);
 
         return Arrays.asList(jwtTokenProvider.createAccessToken(user.getEmail()), newRefreshToken, authResponseDto);
     }
