@@ -52,8 +52,8 @@ public class JwtTokenProvider {
     public boolean validateRefreshToken(String token){
         if(!validateToken(token)) return false;
         // DB에 저장한 토큰 비교
-        RefreshToken refreshToken = refreshTokenRepository.findByRefreshToken(token).orElseThrow(()->new RuntimeException("토큰을 찾을 수 없습니다."));
-        return refreshToken != null && token.equals(refreshToken.getRefreshToken());
+        Optional<RefreshToken> refreshToken = refreshTokenRepository.findByRefreshToken(token);
+        return refreshToken.isPresent() && token.equals(refreshToken.get().getRefreshToken());
     }
 
     public Authentication getAuthentication(String token){
@@ -68,7 +68,7 @@ public class JwtTokenProvider {
         return Jwts.builder()
                 .setIssuedAt(now)
                 .setSubject(email)
-                .setExpiration(new Date(now.getTime() + 1000L * 60 * 60))
+                .setExpiration(new Date(now.getTime() + 1000L * 60 * 30))
                 .signWith(SignatureAlgorithm.HS256, key)
                 .compact();
     }
@@ -80,7 +80,7 @@ public class JwtTokenProvider {
                 .setClaims(claims)
                 .setSubject(email)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 14))//유효시간 (3일)
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 14))
                 .signWith(SignatureAlgorithm.HS256, key) //HS256알고리즘으로 key를 암호화 해줄것이다.
                 .compact();
     }
@@ -93,7 +93,6 @@ public class JwtTokenProvider {
         Cookie myCookie = new Cookie("accessToken", accessToken);
         myCookie.setMaxAge(60 * 60 * 24 * 14);
         myCookie.setPath("/");
-        myCookie.setHttpOnly(true);
         response.addCookie(myCookie);
     }
 
@@ -101,7 +100,6 @@ public class JwtTokenProvider {
         Cookie myCookie = new Cookie("refreshToken", refreshToken);
         myCookie.setMaxAge(60 * 60 * 24 * 14);
         myCookie.setPath("/");
-        myCookie.setHttpOnly(true);
         response.addCookie(myCookie);
     }
 }

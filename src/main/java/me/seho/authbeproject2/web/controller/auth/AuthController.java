@@ -10,6 +10,8 @@ import me.seho.authbeproject2.service.exceptions.NotAcceptableException;
 import me.seho.authbeproject2.web.dto.auth.LoginRequest;
 import me.seho.authbeproject2.web.dto.auth.AuthResponse;
 import me.seho.authbeproject2.web.dto.auth.SignupRequest;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,6 +34,7 @@ public class AuthController {
         List<Object> accessTokenAndRefreshTokenAndResponse = authService.login(loginRequest);
         jwtTokenProvider.setAccessTokenCookies(httpServletResponse, (String) accessTokenAndRefreshTokenAndResponse.get(0));
         jwtTokenProvider.setRefreshTokenCookies(httpServletResponse, (String) accessTokenAndRefreshTokenAndResponse.get(1));
+
         return (AuthResponse) accessTokenAndRefreshTokenAndResponse.get(2);
     }
 
