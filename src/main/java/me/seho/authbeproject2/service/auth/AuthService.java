@@ -1,6 +1,8 @@
 package me.seho.authbeproject2.service.auth;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import me.seho.authbeproject2.config.redis.RedisUtil;
@@ -13,10 +15,7 @@ import me.seho.authbeproject2.repository.users.userRoles.Roles;
 import me.seho.authbeproject2.repository.users.userRoles.RolesRepository;
 import me.seho.authbeproject2.repository.users.userRoles.UserRoles;
 import me.seho.authbeproject2.repository.users.userRoles.UserRolesRepository;
-import me.seho.authbeproject2.service.exceptions.BadRequestException;
-import me.seho.authbeproject2.service.exceptions.ConflictException;
-import me.seho.authbeproject2.service.exceptions.CustomBadCredentialsException;
-import me.seho.authbeproject2.service.exceptions.NotFoundException;
+import me.seho.authbeproject2.service.exceptions.*;
 import me.seho.authbeproject2.web.dto.auth.AuthResponse;
 import me.seho.authbeproject2.web.dto.auth.LoginRequest;
 import me.seho.authbeproject2.web.dto.auth.SignupRequest;
@@ -31,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
@@ -145,6 +145,10 @@ public class AuthService {
             throw new CustomBadCredentialsException("비밀번호가 일치하지 않습니다.", request.getPassword());
         }
 
+        if(user.getStatus().equals("탈퇴")){
+            throw new AccessDeniedException("탈퇴한 계정입니다.",request.getEmail());
+        }
+
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -171,18 +175,39 @@ public class AuthService {
         return Arrays.asList(jwtTokenProvider.createAccessToken(user.getEmail()), newRefreshToken, authResponse);
     }
 
-    public AuthResponse logout(String email, String accessToken, HttpServletResponse response){
+    @Transactional
+    public AuthResponse logout(String email, HttpServletRequest request, HttpServletResponse response){
+        String accessToken = jwtTokenProvider.getAccessTokenCookie(request);
+
         if(email == null) {
-            throw new BadRequestException("유저 정보가 비어있습니다. email : " + email, email);
+            throw new BadRequestException("유저 정보가 비어있습니다. userId : " + email, email);
         }
 
-        if (refreshTokenRepository.findByEmail(email) != null) {
-            refreshTokenRepository.deleteByEmail(email);
+        RefreshToken deletedToken = refreshTokenRepository.findByEmail(email);
+        if(deletedToken != null) {
+            refreshTokenRepository.delete(deletedToken);
         }
 
-        redisUtil.setBlackList(accessToken, "accessToken", 30);
+        if(jwtTokenProvider.validateToken(accessToken)) {
+            redisUtil.setBlackList(accessToken, "accessToken", 30);
+        }
+
         jwtTokenProvider.deleteAccessAndRefreshTokenCookies(response);
 
         return new AuthResponse(HttpStatus.OK.value(), "로그아웃에 성공 하였습니다.", null);
+    }
+
+    @Transactional
+    public AuthResponse withdrawal(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(
+                ()->new NotFoundException("계정을 찾을 수 없습니다. 다시 로그인 해주세요.", email));
+
+        if(user.getStatus().equals("탈퇴")){
+            throw new BadRequestException("이미 탈퇴처리된 회원 입니다.", email);
+        }
+        user.setStatus("탈퇴");
+        user.setDeleteAt(LocalDateTime.now());
+
+        return new AuthResponse(200, "회원탈퇴 완료 되었습니다.", user.getName());
     }
 }

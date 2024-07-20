@@ -6,6 +6,7 @@ import me.seho.authbeproject2.repository.entity.Cart;
 import me.seho.authbeproject2.repository.entity.Payment;
 import me.seho.authbeproject2.repository.entity.Sale;
 import me.seho.authbeproject2.repository.users.userRoles.UserRoles;
+import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -50,6 +51,13 @@ public class User {
 
     @Column(name = "birth_date", nullable = false)
     private LocalDate birthDate;
+
+    @Column(name = "status")
+    @ColumnDefault("'정상'")
+    private String status;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deleteAt;
 
     @CreatedDate
     @Column(name = "create_at")

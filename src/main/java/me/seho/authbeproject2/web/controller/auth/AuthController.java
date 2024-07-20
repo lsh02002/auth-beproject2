@@ -1,5 +1,6 @@
 package me.seho.authbeproject2.web.controller.auth;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import me.seho.authbeproject2.config.security.JwtTokenProvider;
@@ -39,8 +40,13 @@ public class AuthController {
     }
 
     @DeleteMapping("/logout")
-    public AuthResponse logout(@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestHeader(name = "accessToken") String accessToken, HttpServletResponse response){
-        return authService.logout(customUserDetails.getEmail(), accessToken, response);
+    public AuthResponse logout(@AuthenticationPrincipal CustomUserDetails customUserDetails, HttpServletRequest request, HttpServletResponse response){
+        return authService.logout(customUserDetails.getEmail(), request, response);
+    }
+
+    @DeleteMapping("/withdrawal")
+    public AuthResponse withdrawal(@AuthenticationPrincipal CustomUserDetails customUserDetails){
+        return authService.withdrawal(customUserDetails.getEmail());
     }
 
     @GetMapping(value = "/entrypoint")

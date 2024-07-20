@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import me.seho.authbeproject2.config.redis.RedisUtil;
@@ -121,5 +122,21 @@ public class JwtTokenProvider {
         myCookie2.setMaxAge(0); // 쿠키의 expiration 타임을 0으로 하여 없앤다.
         myCookie2.setPath("/"); // 모든 경로에서 삭제 됬음을 알린다.
         response.addCookie(myCookie2);
+    }
+
+    public String getAccessTokenCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+
+        if(cookies == null){
+            return null;
+        }
+
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals("accessToken")) {
+                return cookie.getValue();
+            }
+        }
+
+        return null;
     }
 }
