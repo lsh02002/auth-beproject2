@@ -1,7 +1,9 @@
 package me.seho.authbeproject2.service.auth;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import me.seho.authbeproject2.config.redis.RedisUtil;
 import me.seho.authbeproject2.config.security.JwtTokenProvider;
 import me.seho.authbeproject2.repository.users.User;
 import me.seho.authbeproject2.repository.users.UserRepository;
@@ -40,6 +42,7 @@ public class AuthService {
     private final RolesRepository rolesRepository;
     private final UserRolesRepository userRolesRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final RedisUtil redisUtil;
     private final JwtTokenProvider jwtTokenProvider;
 
     private final PasswordEncoder passwordEncoder;
@@ -163,8 +166,23 @@ public class AuthService {
 
         refreshTokenRepository.save(newToken);
 
-        AuthResponse authResponseDto = new AuthResponse(HttpStatus.OK.value(), "로그인에 성공 하였습니다.", signupResponse);
+        AuthResponse authResponse = new AuthResponse(HttpStatus.OK.value(), "로그인에 성공 하였습니다.", signupResponse);
 
-        return Arrays.asList(jwtTokenProvider.createAccessToken(user.getEmail()), newRefreshToken, authResponseDto);
+        return Arrays.asList(jwtTokenProvider.createAccessToken(user.getEmail()), newRefreshToken, authResponse);
+    }
+
+    public AuthResponse logout(String email, String accessToken, HttpServletResponse response){
+        if(email == null) {
+            throw new BadRequestException("유저 정보가 비어있습니다. email : " + email, email);
+        }
+
+        if (refreshTokenRepository.findByEmail(email) != null) {
+            refreshTokenRepository.deleteByEmail(email);
+        }
+
+        redisUtil.setBlackList(accessToken, "accessToken", 30);
+        jwtTokenProvider.deleteAccessAndRefreshTokenCookies(response);
+
+        return new AuthResponse(HttpStatus.OK.value(), "로그아웃에 성공 하였습니다.", null);
     }
 }

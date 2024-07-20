@@ -38,6 +38,11 @@ public class AuthController {
         return (AuthResponse) accessTokenAndRefreshTokenAndResponse.get(2);
     }
 
+    @DeleteMapping("/logout")
+    public AuthResponse logout(@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestHeader(name = "accessToken") String accessToken, HttpServletResponse response){
+        return authService.logout(customUserDetails.getEmail(), accessToken, response);
+    }
+
     @GetMapping(value = "/entrypoint")
     public void entrypointException(@RequestParam(name = "accessToken", required = false) String token) {
         if (token==null) throw new NotAcceptableException("로그인(Jwt 토큰)이 필요합니다.", null);

@@ -7,10 +7,12 @@ import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import me.seho.authbeproject2.config.redis.RedisUtil;
 import me.seho.authbeproject2.repository.users.refreshToken.RefreshToken;
 import me.seho.authbeproject2.repository.users.refreshToken.RefreshTokenRepository;
 import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.cache.CacheProperties;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,6 +26,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class JwtTokenProvider {
     private final RefreshTokenRepository refreshTokenRepository;
+    private final RedisUtil redisUtil;
     private final UserDetailsService userDetailsService;
 
     @Value("lsh02002aa-lsh02002aa")
@@ -38,6 +41,11 @@ public class JwtTokenProvider {
 
     public boolean validateToken(String token){
         try{
+            if(redisUtil.hasKeyBlackList(token)){
+                log.warn("로그아웃된 access 토큰입니다.");
+                return false;
+            }
+
             Claims claims = Jwts.parser()
                     .setSigningKey(key).parseClaimsJws(token)
                     .getBody();
@@ -101,5 +109,17 @@ public class JwtTokenProvider {
         myCookie.setMaxAge(60 * 60 * 24 * 14);
         myCookie.setPath("/");
         response.addCookie(myCookie);
+    }
+
+    public void deleteAccessAndRefreshTokenCookies(HttpServletResponse response){
+        Cookie myCookie1 = new Cookie("accessToken", null);
+        myCookie1.setMaxAge(0); // 쿠키의 expiration 타임을 0으로 하여 없앤다.
+        myCookie1.setPath("/"); // 모든 경로에서 삭제 됬음을 알린다.
+        response.addCookie(myCookie1);
+
+        Cookie myCookie2 = new Cookie("refreshToken", null);
+        myCookie2.setMaxAge(0); // 쿠키의 expiration 타임을 0으로 하여 없앤다.
+        myCookie2.setPath("/"); // 모든 경로에서 삭제 됬음을 알린다.
+        response.addCookie(myCookie2);
     }
 }

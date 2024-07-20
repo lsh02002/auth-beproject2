@@ -15,10 +15,6 @@ public class RefreshToken {
     private String authId;
     @Indexed
     private String refreshToken;
+    @Indexed
     private String email;
-
-    public RefreshToken update(String refreshToken){
-        this.refreshToken = refreshToken;
-        return this;
-    }
 }
